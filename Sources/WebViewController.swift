@@ -68,6 +68,7 @@ final class WebViewController: UIViewController {
 
     private func localFileURL() -> URL? {
         Bundle.main.url(forResource: "index", withExtension: "html")
+            ?? Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "web")
     }
 
     private func loadHome() {
