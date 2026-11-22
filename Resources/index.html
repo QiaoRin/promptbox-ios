@@ -50,14 +50,23 @@
     --pad:max(16px,calc((100vw - 560px)/2 + 16px));
   }
 
-  /* ---------- 顶栏 ---------- */
-  .topbar{
+  /* ---------- 吸顶头部：标题栏 + 分类栏，整体固定 ---------- */
+  .head-stack{
     position:sticky;top:0;z-index:20;
-    display:flex;align-items:center;gap:10px;
-    padding:calc(16px + env(safe-area-inset-top)) 16px 10px;
-    background:rgba(242,246,251,.55);
+    background:linear-gradient(to bottom,
+      rgba(242,246,251,.86) 0%,
+      rgba(242,246,251,.72) 58%,
+      rgba(242,246,251,.38) 82%,
+      rgba(242,246,251,0) 100%);
     backdrop-filter:blur(18px) saturate(1.3);
     -webkit-backdrop-filter:blur(18px) saturate(1.3);
+    -webkit-mask-image:linear-gradient(to bottom,#000 82%,transparent 100%);
+    mask-image:linear-gradient(to bottom,#000 82%,transparent 100%);
+    padding-bottom:12px;
+  }
+  .topbar{
+    display:flex;align-items:center;gap:10px;
+    padding:calc(16px + env(safe-area-inset-top)) 16px 10px;
   }
   .icon-btn{
     width:40px;height:40px;border-radius:14px;
@@ -284,6 +293,8 @@
 <body>
 <div class="phone">
 
+  <!-- 吸顶头部：标题栏 + 搜索栏 + 主/细分类，整体固定 -->
+  <div class="head-stack">
   <!-- 顶栏 -->
   <header class="topbar">
     <button class="icon-btn" id="btnMenu" aria-label="分类管理">
@@ -310,6 +321,7 @@
   <!-- 分类胶囊 -->
   <nav class="catbar" id="catBar"></nav>
   <nav class="subbar" id="subBar" hidden></nav>
+  </div>
 
   <!-- 首页列表 -->
   <section class="view" id="view-home">
@@ -1467,8 +1479,25 @@ async function importDocx(file){
   toast(`导入完成：新增 ${added} 条${dup ? `，跳过重复 ${dup} 条` : ''}${imgOk ? `，图片 ${imgOk} 张` : ''}`);
 }
 
+// 生成一张中性占位示意图（灰底 + 图片图标），仅用于模板示范贴图位置，不含 App logo
+function makePlaceholderBlob(){
+  return new Promise(resolve => {
+    const c = document.createElement('canvas');
+    c.width = 380; c.height = 240;
+    const x = c.getContext('2d');
+    x.fillStyle = '#EDF0F4'; x.fillRect(0, 0, 380, 240);
+    x.strokeStyle = '#B7C2CF'; x.lineWidth = 3; x.lineJoin = 'round';
+    x.strokeRect(70, 50, 240, 140);
+    x.beginPath();
+    x.moveTo(90, 170); x.lineTo(160, 105); x.lineTo(210, 150); x.lineTo(250, 115); x.lineTo(290, 170);
+    x.stroke();
+    x.beginPath(); x.arc(270, 85, 12, 0, Math.PI * 2); x.stroke();
+    c.toBlob(b => resolve(b || null), 'image/png');
+  });
+}
+
 async function downloadDocxTemplate(){
-  const blob = await (await fetch(LOGO_URL)).blob();
+  const blob = await makePlaceholderBlob();
   const items = [{ category: '现代', sub: '冬', body: '（这里写提示词）示例：头发梳成精致盘云发髻，点缀珍珠花簪，妆容淡雅温婉。', blob }];
   for (let i = 2; i <= 10; i++) items.push({ category: '', sub: '', body: '', blob: null });
   const zip = await buildDocx(items);
