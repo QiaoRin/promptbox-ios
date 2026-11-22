@@ -18,11 +18,11 @@
 | --- | --- |
 | App 显示名 / bundle id / 版本 | `project.yml`（`PRODUCT_NAME`、`PRODUCT_BUNDLE_IDENTIFIER`、版本号）、`Resources/Info.plist`（`CFBundleDisplayName`） |
 | App 图标 | `Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png`（1024×1024，**不带 alpha 通道**） |
-| 前端页面 | `Resources/web/index.html`（替换后重新跑 Actions 即可） |
+| 前端页面 | `Resources/index.html`（替换后重新跑 Actions 即可） |
 
 ## 说明
 
-- 页面为离线内嵌：壳启动后加载 bundle 内 `web/index.html`，不依赖公网地址。
+- 页面为离线内嵌：壳启动后加载 bundle 内 `index.html`，不依赖公网地址。
 - 提示词文本存在 WKWebView 的 `localStorage`，配图存在 `IndexedDB`；卸载 App 会一并清除。
 - 页面唯一外链是字体样式表，离线取不到时自动回退系统字体，不影响功能。
 - 部署目标 iOS 16.0+，仅竖屏。

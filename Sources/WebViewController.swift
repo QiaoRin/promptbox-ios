@@ -67,7 +67,7 @@ final class WebViewController: UIViewController {
     // MARK: - 加载（离线内嵌本地 HTML）
 
     private func localFileURL() -> URL? {
-        Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "web")
+        Bundle.main.url(forResource: "index", withExtension: "html")
     }
 
     private func loadHome() {

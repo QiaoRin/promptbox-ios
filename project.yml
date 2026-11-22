@@ -24,9 +24,10 @@ targets:
     platform: iOS
     sources:
       - path: Sources
-      - path: Resources
-        excludes:
-          - "Info.plist"
+      - path: Resources/index.html
+        buildPhase: resources
+      - path: Resources/Assets.xcassets
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.choyi.promptbox
