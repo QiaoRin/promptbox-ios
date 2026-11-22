@@ -35,7 +35,7 @@ final class WebViewController: UIViewController {
         // 全屏铺满，不让系统自动加 inset
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         // 禁止捏合缩放，锁定 1:1
-        webView.scrollView.allowsPinchGesture = false
+        webView.scrollView.pinchGestureRecognizer?.isEnabled = false
         webView.scrollView.minimumZoomScale = 1
         webView.scrollView.maximumZoomScale = 1
         webView.underPageBackgroundColor = .systemBackground
