@@ -4,6 +4,7 @@ import WebKit
 final class WebViewController: UIViewController {
 
     private var webView: WKWebView!
+    private var contentController: WKUserContentController?
     private var themeObservation: NSKeyValueObservation?
     private var statusBarStyle: UIStatusBarStyle = .darkContent
 
@@ -24,6 +25,8 @@ final class WebViewController: UIViewController {
             injectionTime: .atDocumentStart,
             forMainFrameOnly: true)
         config.userContentController.addUserScript(flag)
+        config.userContentController.add(self, name: "promptbox")
+        contentController = config.userContentController
         config.applicationNameForUserAgent = "PromptBox/\(ver)"
 
         webView = WKWebView(frame: .zero, configuration: config)
@@ -64,6 +67,10 @@ final class WebViewController: UIViewController {
         NotificationCenter.default.addObserver(
             self, selector: #selector(appDidBecomeActive),
             name: UIApplication.didBecomeActiveNotification, object: nil)
+    }
+
+    deinit {
+      contentController?.removeScriptMessageHandler(forName: "promptbox")
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle { statusBarStyle }
@@ -183,6 +190,35 @@ extension WebViewController: WKUIDelegate {
             completionHandler(ac.textFields?.first?.text)
         })
         present(ac, animated: true)
+    }
+}
+
+// MARK: - JS 桥接（文件下载）
+
+extension WebViewController: WKScriptMessageHandler {
+
+    func userContentController(_ userContentController: WKUserContentController,
+                               didReceive message: WKScriptMessage) {
+        guard message.name == "promptbox",
+              let body = message.body as? [String: Any] else { return }
+        if (body["action"] as? String) == "download" {
+            handleDownload(name: body["name"] as? String, base64: body["data"] as? String)
+        }
+    }
+
+    private func handleDownload(name: String?, base64: String?) {
+        guard let base64 = base64, let data = Data(base64Encoded: base64), !data.isEmpty else { return }
+        let fname = (name?.isEmpty == false) ? name! : "promptbox.docx"
+        let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(fname)
+        do {
+            try data.write(to: tmp, options: .atomic)
+        } catch {
+            return
+        }
+        let vc = UIActivityViewController(activityItems: [tmp], applicationActivities: nil)
+        vc.popoverPresentationController?.sourceView = view
+        vc.popoverPresentationController?.sourceRect = view.bounds
+        present(vc, animated: true)
     }
 }
 
